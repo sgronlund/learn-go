@@ -3,43 +3,50 @@ package main
 import (
 	"fmt"
 	"math"
-	"strings"
 )
 
-func checkMatching(str1 string, str2 string) int {
+func checkMatching(str1, str2 string) (float64, float64) {
 	num := 0
-	strArr1 := strings.Split(str1, "")
+	transpose := 0
 	len1 := len(str1)
-	strArr2 := strings.Split(str2, "")
+	matchArr1 := make([]bool, len1)
 	len2 := len(str2)
-	for i, s := range strArr1 {
-		for j, t := range strArr2 {
-			if s == t {
+	matchArr2 := make([]bool, len2)
+	for i := range str1 {
+		for j := range str2 {
+			if str1[i] == str2[j] {
 				distance := math.Abs(float64(i - j))
 				allowedDistance := math.Floor(math.Max(float64(len1), float64(len2))/2) - 1
 				if distance > allowedDistance {
 					continue
 				} else {
+					matchArr1[i] = true
+					matchArr2[j] = true
 					num++
 				}
 			}
 		}
 	}
-	return num
+	// FIXME: Broken transposition loop
+	j := 0
+	for i := range str1 {
+		if matchArr1[i] {
+			if matchArr2[j] {
+				if str1[i] != str2[j] {
+					transpose++
+				}
+			}
+			j++
+		}
+	}
+	return float64(num), float64(transpose / 2)
 }
 
-func countTranspositions() {
-	//FIXME: do transpositions things here, need to rewrite other functions
-}
-
-func jaroSimilarity(input string, actual string) float64 {
-	m := float64(checkMatching(input, actual))
+func jaroSimilarity(input, actual string) float64 {
+	m, t := checkMatching(input, actual)
 	len1 := float64(len(input))
 	len2 := float64(len(actual))
-	// TODO: Fix transposition calculation, need to count amount of matches which do not have the same index
-	t := float64(m / 2)
 	if m == 0 {
-		fmt.Println("beep")
 		return 0
 	} else {
 		sim := float64(((m / len1) + (m / len2) + ((m - t) / m)) / 3)
@@ -48,5 +55,5 @@ func jaroSimilarity(input string, actual string) float64 {
 }
 
 func main() {
-	fmt.Println(jaroSimilarity("CRATE", "TRACE"))
+	fmt.Println(jaroSimilarity("", ""))
 }
